@@ -10,74 +10,85 @@ const sizeScreen = 30;
 //     ctx.fillRect(i * sizeScreen, i * sizeScreen,  sizeScreen, sizeScreen);
 // }
 
-let snake = [
-    // {
-    //     x: 200,
-    //     y: 140,
-    // },
-    // {
-    //     x: 200,
-    //     y: 170,
-    // },
-    {
-        x: 200,
-        y: 200,
-    },
-    {
-        x: 230,
-        y: 200,
-    },
-    {
-        x: 260,
-        y: 200,
-    }
-];
-let direction = 'right';
 
-const drawSnake = () => {
-    snake.forEach((position, i) => {
-        ctx.fillStyle = 'white';
-        if(i == 0) ctx.fillStyle = 'red';
-        
-        ctx.fillRect(position.x, position.y, sizeScreen, sizeScreen);
-    });   
+const initialPosition = { x: 0, y: 0 }
+let snake = [
+    initialPosition
+]
+let direction = 'right';
+let loopId;
+
+const generateRandomColor = () => {
+    return "#" + Math.floor(Math.random()*16777215).toString(16);
 }
 
-const moveSnake = () => {
-    const head = snake[snake.length - 1];
-    snake.shift();
+const generateFood = () => {
+    ctx.fillStyle = generateRandomColor();
+    let x = Math.floor(Math.random() * 20) * sizeScreen;
+    let y = Math.floor(Math.random() * 20) * sizeScreen;
+    ctx.fillRect(x, y, sizeScreen, sizeScreen);
+}
 
-    if(direction = 'right') {
-        // console.log(direction);
+const drawSnake = () => {
+    ctx.fillStyle = "#ddd"
+
+    snake.forEach((position, index) => {
+        if (index == snake.length - 1) {
+            ctx.fillStyle = "red"
+        }
+        ctx.fillRect(position.x, position.y, sizeScreen, sizeScreen)
+    });
+}
+
+
+const moveSnake = () => {
+
+    if(!direction) return;
+
+    const head = snake[snake.length - 1];
+  
+    if(direction == 'right') {
         snake.push({
             x: head.x + sizeScreen,
             y: head.y
         })
     }
+
+    if(direction == 'left') {
+        snake.push({
+            x: head.x - sizeScreen,
+            y: head.y
+        })
+    }
+
+    if(direction == 'down') {
+        snake.push({
+            x: head.x,
+            y: head.y + sizeScreen
+        })
+    }
+
+    if(direction == 'up') {
+        snake.push({
+            x: head.x,
+            y: head.y - sizeScreen
+        })
+    }
+    snake.shift()
 };
 
-
-// const gameLoop = () => window.setInterval(() => {
-//     console.log('hit');
-
-
-//     // console.log(snake);
-//     // snake = [{
-//     //     x: snake[0].x + 30,
-//     //     y: 170,
-//     // }].concat(snake)
-
-//     // console.log(snake[0].x + 30);
-//     // snake.push({
-//     //     x: snake[0].x + 30,
-//     //     x: 170,
-//     // });
-
-//     drawSnake();
-// }, 500);
-
-
-
-// gameLoop();
-moveSnake();
 drawSnake();
+const gameLoop = () => {
+    clearInterval(loopId);
+    ctx.clearRect(0, 0, 600, 600)
+    generateFood();
+    moveSnake()
+    drawSnake()
+    // checkCollision()
+
+    loopId = setTimeout(() => {
+        gameLoop()
+    }, 300)
+}
+
+gameLoop()    
